@@ -4,8 +4,10 @@ import sys
 import stompy
 import tweepy
 
+
 class STOMPListener():
    pass
+
 
 def main():
    consumer_key = "sv7DjZk2HGHN5yjgYSmUGY4oY"
@@ -19,8 +21,6 @@ def main():
    api = tweepy.API(auth)
 
    api.update_status("Hello! I am alive!")
-
-
 
 if __name__ == '__main__':
    main()
