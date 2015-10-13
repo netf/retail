@@ -130,6 +130,33 @@ def search():
                            products = results,
                            filter_by = filter_by)
 
+@web_api.route('/receipt_by_product')
+def search_receipt_by_product():
+    search_term = request.args.get('s')
+
+    if not search_term:
+        return render_template('search_receipt_list.jinja2',
+                               products = None)
+
+    filter_by = request.args.get('filter_by')
+
+    # parameters to solr are rows=300  wt (writer type)=json, and q=city:<keyword> sort=zipcode asc
+    # note: escape quote any quotes that are part of the query / filter query
+    solr_query = '"q":"product_name:%s"' % search_term.replace('"','\\"').encode('utf-8')
+
+    if filter_by:
+        solr_query += ',"fq":"%s"' % filter_by.replace('"','\\"').encode('utf-8')
+
+    query = "SELECT * FROM receipts WHERE solr_query = '{%s}' LIMIT 300" % solr_query
+
+    # get the response
+    results = cassandra_helper.session.execute(query)
+
+    return render_template('search_receipt_list.jinja2',
+                           search_term = search_term,
+                           receipts = results,
+                           filter_by = filter_by)
+
 #
 # The facets come in a list [ 'value1', 10, 'value2' 5, ...] with numbers in descending order
 # We convert it to a list of [('value1',10), ('value2',5) ... ]
