@@ -60,7 +60,7 @@
                 <td><a href="/web/product_search?category_name={{ receipt.product_name}}">{{ receipt.product_name }}</a></td>
                 <td><a href="/web/product?product_id={{ receipt.quantity }}">{{ receipt.quantity }}</a></td>
                 <td><a href="/web/product?product_id={{ receipt.unit_price }}">{{ receipt.unit_price }}</a></td>
-                <td><a href="/web/product?product_id={{ receipt.total }}">{{ receipt.total }}</a></td>
+                <td><a href="/web/product?product_id={{ receipt.total }}">{{ "%.2f" % receipt.total }}</a></td>
                 </tr>
             {% endfor %}
         {% endif %}
