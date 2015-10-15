@@ -1,0 +1,43 @@
+{% extends "/base.jinja2" %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
+    <div id="search_div">
+    <form action="">
+      Customer's first name: <input type="text" name="firstname">
+      Customer's last name: <input type="text" name="lastname">
+      <input type="submit" value="Search">
+    </form>
+</div>
+<br>
+    <div id="chart_div">
+        <br>
+        <table border="1" width="1000">
+        <th>Customer ID</th>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>Street</th>
+        <th>State</th>
+        <th>Zip</th>
+        {% if customers %}
+            {% for customer in customers %}
+                <tr>
+                <td>{{ customer.id }}</td>
+                <td>{{ customer.firstname }}</td>
+                <td>{{ customer.lastname }}</td>
+                <td>{{ customer.street }}</td>
+                <td>{{ customer.state }}</td>
+                <td>{{ customer.zip }}</td>
+                <td><a href="/web/receipts_by_customer?customer_id={{ customer.id }}">Details</a></td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </table>
+</div>
+{% endblock %}
+
+{% block tail %}
+{% endblock %}
+
