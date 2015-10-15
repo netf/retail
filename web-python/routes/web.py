@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from flask import Blueprint, request, render_template
 from helpers import cassandra_helper
+import uuid
 import json
 
 # from rest import session
@@ -14,12 +15,16 @@ def init():
     global get_product_by_brand_cc
     global get_product_by_category_cc
     global get_receipt_by_cc
+    global get_customers_by_name
+    global get_receipts_by_customer
 
     get_product_by_brand_cc = cassandra_helper.session.prepare("SELECT * from products_by_supplier WHERE supplier_id = ? limit 300")
     get_product_by_category_cc = cassandra_helper.session.prepare("SELECT * from products_by_category_name WHERE category_name = ? limit 300")
     get_product_by_id_stmt = cassandra_helper.session.prepare("SELECT * from products_by_id WHERE product_id = ?")
     get_receipt_by_id_stmt = cassandra_helper.session.prepare("SELECT * from receipts WHERE receipt_id = ?")
     get_receipt_by_cc = cassandra_helper.session.prepare("SELECT * from receipts_by_credit_card WHERE credit_card_number = ?")
+    get_customers_by_name = cassandra_helper.session.prepare("SELECT * from customers WHERE firstname = ? AND lastname = ?")
+    get_receipts_by_customer = cassandra_helper.session.prepare("SELECT * from receipts_by_customer WHERE customer_id = ?")
 
 @web_api.route('/')
 def index():
@@ -88,6 +93,37 @@ def find_receipt_by_credit_card():
         results = cassandra_helper.session.execute(get_receipt_by_cc, [long(cc_no)])
 
     return render_template('credit_card_search.jinja2', receipts = results)
+
+@web_api.route('/customers')
+def find_customer_by_name():
+    global get_customers_by_name
+    global customer_full_name
+    results = None
+
+    customer_first_name = request.args.get('firstname')
+    customer_last_name = request.args.get('lastname')
+
+    if customer_first_name and customer_last_name:
+        customer_full_name = "{} {}".format(customer_first_name, customer_last_name)
+
+        results = cassandra_helper.session.execute(get_customers_by_name, [customer_first_name, customer_last_name])
+
+    return render_template('customer_search.jinja2', customers = results)
+
+
+@web_api.route('/receipts_by_customer')
+def find_receipt_by_customer():
+
+    global get_receipt_by_customer
+    results = None
+
+    customer_id = request.args.get('customer_id')
+
+    if customer_id:
+        results = cassandra_helper.session.execute(get_receipts_by_customer, [uuid.UUID(customer_id)])
+
+    return render_template('receipt_list.jinja2', customer_full_name = customer_full_name, customer_id = customer_id, receipts = results)
+
 
 @web_api.route('/search')
 def search():
