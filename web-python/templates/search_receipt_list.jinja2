@@ -1,0 +1,73 @@
+{% extends "/base.jinja2" %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
+      Solr Search on Title:<br>
+     <div id="solr_div">
+
+    <form action="/web/receipt_by_product">
+      <input type="text" name="s">
+      <input type="submit" value="Search">
+    </form>
+    </div>
+<br>
+    <section>
+    <div id="facet" style="float:left;width:20%">
+    Narrow Results By:<br><br>
+{% if categories %}
+  <b>Category:</b><br>
+
+  {% for category in categories %}
+  {% set new_filter_by = 'category_name:"' + category.name + '"'%}
+  {% if filter_by %}
+    {% set new_filter_by = filter_by + " AND " + new_filter_by %}
+  {% endif %}
+
+  <a href="{{ makeURL("/web/receipt_by_product","s", search_term, "filter_by", new_filter_by) }}">{{ category.name }}:</a>&nbsp;{{ category.amount}}<br>
+  {% endfor %}
+  <br>
+{% endif %}
+{% if suppliers %}
+  <b>Supplier:</b><br>
+
+  {% for supplier in suppliers %}
+  {% set new_filter_by = 'supplier_name:"' + supplier.name + '"' %}
+  {% if filter_by %}
+    {%   set new_filter_by = filter_by + " AND " + new_filter_by %}
+  {% endif %}
+
+  <a href="{{ makeURL("/web/receipt_by_product","s", search_term, "filter_by", new_filter_by) }}">{{ supplier.name }}:</a>&nbsp;{{ supplier.amount }}<br>
+  {% endfor %}
+{% endif %}
+
+    </div>
+    <div id="list_div" style="float:right;width:80%">
+        <br>
+        <table border="1">
+        <th>Receipt ID</th>
+        <th>Product ID</th>
+        <th>Product Name</th>
+        <th>Quantity</th>
+        <th>Unit Price</th>
+        <th>Total</th>
+        {% if receipts %}
+            {% for receipt in receipts %}
+                <tr>
+                <td>{{ receipt.receipt_id }}</td>
+                <td><a href="/web/product_search?brand_id={{ receipt.product_id }}">{{ receipt.product_id }}</a></td>
+                <td><a href="/web/product_search?category_name={{ receipt.product_name}}">{{ receipt.product_name }}</a></td>
+                <td><a href="/web/product?product_id={{ receipt.quantity }}">{{ receipt.quantity }}</a></td>
+                <td><a href="/web/product?product_id={{ receipt.unit_price }}">{{ receipt.unit_price }}</a></td>
+                <td><a href="/web/product?product_id={{ receipt.total }}">{{ "%.2f" % receipt.total }}</a></td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </table>
+</div>
+</section>
+{% endblock %}
+
+{% block tail %}
+{% endblock %}
