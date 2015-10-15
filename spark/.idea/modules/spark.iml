@@ -14,7 +14,6 @@
       <sourceFolder url="file://$MODULE_DIR$/../../target/scala-2.10/resource_managed/test" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../target" />
     </content>
-    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="SBT: com.clearspring.analytics:stream:2.7.0:jar" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="SBT: com.esotericsoftware.kryo:kryo:2.21:jar" level="project" />
