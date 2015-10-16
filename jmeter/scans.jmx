@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13.1 r1">
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13.2 r1">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -71,12 +71,12 @@
             <encoding>false</encoding>
             <assertions>true</assertions>
             <subresults>true</subresults>
-            <responseData>false</responseData>
-            <samplerData>false</samplerData>
+            <responseData>true</responseData>
+            <samplerData>true</samplerData>
             <xml>false</xml>
             <fieldNames>false</fieldNames>
             <responseHeaders>false</responseHeaders>
-            <requestHeaders>false</requestHeaders>
+            <requestHeaders>true</requestHeaders>
             <responseDataOnError>false</responseDataOnError>
             <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
             <assertionsResultsToSave>0</assertionsResultsToSave>
@@ -245,6 +245,28 @@
               <stringProp name="sessionName">cc</stringProp>
               <stringProp name="variableNames"></stringProp>
             </CassandraSampler>
+            <hashTree/>
+            <PublisherSampler guiclass="JMSPublisherGui" testclass="PublisherSampler" testname="Receipts JMS Publisher" enabled="true">
+              <stringProp name="jms.jndi_properties">false</stringProp>
+              <stringProp name="jms.initial_context_factory">org.apache.activemq.jndi.ActiveMQInitialContextFactory</stringProp>
+              <stringProp name="jms.provider_url">tcp://localhost:61616</stringProp>
+              <stringProp name="jms.connection_factory">ConnectionFactory</stringProp>
+              <stringProp name="jms.topic">dynamicTopics/Receipts</stringProp>
+              <stringProp name="jms.expiration">10000</stringProp>
+              <stringProp name="jms.priority">0</stringProp>
+              <stringProp name="jms.security_principle"></stringProp>
+              <stringProp name="jms.security_credentials"></stringProp>
+              <stringProp name="jms.text_message">${credit_card_number}|${store_id}|${receipt_date}|${receipt_time}</stringProp>
+              <stringProp name="jms.input_file"></stringProp>
+              <stringProp name="jms.random_path"></stringProp>
+              <stringProp name="jms.config_choice">jms_use_text</stringProp>
+              <stringProp name="jms.config_msg_type">jms_text_message</stringProp>
+              <stringProp name="jms.iterations">1</stringProp>
+              <boolProp name="jms.authenticate">false</boolProp>
+              <elementProp name="jms.jmsProperties" elementType="JMSProperties">
+                <collectionProp name="JMSProperties.properties"/>
+              </elementProp>
+            </PublisherSampler>
             <hashTree/>
             <CassandraSampler guiclass="TestBeanGUI" testclass="CassandraSampler" testname="Update Inventory" enabled="true">
               <stringProp name="batchSize"></stringProp>
