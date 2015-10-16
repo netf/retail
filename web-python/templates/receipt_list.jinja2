@@ -7,29 +7,30 @@
     <div id="search_div">
         <tr><td>Customer:</td><td>{{ customer_full_name }} {{customer_id}}</td></tr>
 </div>
-<br>
-    <div id="chart_div">
-        <br>
-        <table border="1" width="1000">
-        <th>Customer ID</th>
-        <th>First name</th>
-        <th>Last name</th>
-        <th>Street</th>
-        <th>State</th>
-        <th>Zip</th>
-        {% if receipts %}
-            {% for receipt in receipts %}
-                <tr>
-                    <tr><td>Receipt_ID:</td><td>{{ receipt.receipt_id }}</td></tr>
-                    <tr><td>Total:</td><td>${{ receipt.receipt_total }}</td></tr>
-                    <tr><td>Card Type:</td><td>{{ receipt.credit_card_type }}</td></tr>
-                    <td><a href="xxxx">Details</a></td>
-                </tr>
-            {% endfor %}
-        {% endif %}
-        </table>
+
+<div id="list_div">    
+    <br>
+    <table border="1" width="1000">
+    <th>Receipt ID</th>
+    <th>Total</th>
+    <th>Card Type</th>
+    {% if receipts %}
+        {% for receipt in receipts %}
+            <tr>
+                <td>{{ receipt.receipt_id }}</td>
+                <td>${{ receipt.receipt_total }}</td>
+                <td>{{ receipt.credit_card_type }}</td>
+                <td><a href="/web/receipt?receipt_id={{ receipt.receipt_id }}">Details</a></td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+    </table>
 </div>
 {% endblock %}
 
 {% block tail %}
 {% endblock %}
+
+
+
+

@@ -124,6 +124,18 @@ def find_receipt_by_customer():
 
     return render_template('receipt_list.jinja2', customer_full_name = customer_full_name, customer_id = customer_id, receipts = results)
 
+"""
+@web_api.route('/single_receipt_details')
+def show_details_for_receipt():
+    global get_receipt_by_id_stmt;
+    results = None
+
+    receipt_id = request.args.get('receipt_id')
+
+    if receipts:
+        results = cassandra_helper.session.execute(get_receipt_by_id_stmt, [])
+"""
+
 
 @web_api.route('/search')
 def search():
