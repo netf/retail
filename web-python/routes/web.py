@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from flask import Blueprint, request, render_template
 from helpers import cassandra_helper
+import uuid
 import json
 
 # from rest import session
@@ -14,12 +15,16 @@ def init():
     global get_product_by_brand_cc
     global get_product_by_category_cc
     global get_receipt_by_cc
+    global get_customers_by_name
+    global get_receipts_by_customer
 
     get_product_by_brand_cc = cassandra_helper.session.prepare("SELECT * from products_by_supplier WHERE supplier_id = ? limit 300")
     get_product_by_category_cc = cassandra_helper.session.prepare("SELECT * from products_by_category_name WHERE category_name = ? limit 300")
     get_product_by_id_stmt = cassandra_helper.session.prepare("SELECT * from products_by_id WHERE product_id = ?")
     get_receipt_by_id_stmt = cassandra_helper.session.prepare("SELECT * from receipts WHERE receipt_id = ?")
     get_receipt_by_cc = cassandra_helper.session.prepare("SELECT * from receipts_by_credit_card WHERE credit_card_number = ?")
+    get_customers_by_name = cassandra_helper.session.prepare("SELECT * from customers WHERE firstname = ? AND lastname = ?")
+    get_receipts_by_customer = cassandra_helper.session.prepare("SELECT * from receipts_by_customer WHERE customer_id = ?")
 
 @web_api.route('/')
 def index():
@@ -89,6 +94,37 @@ def find_receipt_by_credit_card():
 
     return render_template('credit_card_search.jinja2', receipts = results)
 
+@web_api.route('/customers')
+def find_customer_by_name():
+    global get_customers_by_name
+    global customer_full_name
+    results = None
+
+    customer_first_name = request.args.get('firstname')
+    customer_last_name = request.args.get('lastname')
+
+    if customer_first_name and customer_last_name:
+        customer_full_name = "{} {}".format(customer_first_name, customer_last_name)
+
+        results = cassandra_helper.session.execute(get_customers_by_name, [customer_first_name, customer_last_name])
+
+    return render_template('customer_search.jinja2', customers = results)
+
+
+@web_api.route('/receipts_by_customer')
+def find_receipt_by_customer():
+
+    global get_receipt_by_customer
+    results = None
+
+    customer_id = request.args.get('customer_id')
+
+    if customer_id:
+        results = cassandra_helper.session.execute(get_receipts_by_customer, [uuid.UUID(customer_id)])
+
+    return render_template('receipt_list.jinja2', customer_full_name = customer_full_name, customer_id = customer_id, receipts = results)
+
+
 @web_api.route('/search')
 def search():
     # this will search the city field in the zipcodes solr core
@@ -128,6 +164,33 @@ def search():
                            categories = filter_facets(facet_map['category_name']),
                            suppliers = filter_facets(facet_map['supplier_name']),
                            products = results,
+                           filter_by = filter_by)
+
+@web_api.route('/receipt_by_product')
+def search_receipt_by_product():
+    search_term = request.args.get('s')
+
+    if not search_term:
+        return render_template('search_receipt_list.jinja2',
+                               products = None)
+
+    filter_by = request.args.get('filter_by')
+
+    # parameters to solr are rows=300  wt (writer type)=json, and q=city:<keyword> sort=zipcode asc
+    # note: escape quote any quotes that are part of the query / filter query
+    solr_query = '"q":"product_name:%s"' % search_term.replace('"','\\"').encode('utf-8')
+
+    if filter_by:
+        solr_query += ',"fq":"%s"' % filter_by.replace('"','\\"').encode('utf-8')
+
+    query = "SELECT * FROM receipts WHERE solr_query = '{%s}' LIMIT 300" % solr_query
+
+    # get the response
+    results = cassandra_helper.session.execute(query)
+
+    return render_template('search_receipt_list.jinja2',
+                           search_term = search_term,
+                           receipts = results,
                            filter_by = filter_by)
 
 #
